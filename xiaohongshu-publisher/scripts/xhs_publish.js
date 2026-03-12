@@ -178,12 +178,64 @@ async function clickExactText(page, text) {
   }, text);
 }
 
-function archivePreview(spec, screenshotPath, images, archiveRoot) {
+function fileToDataUrl(filePath) {
+  const ext = path.extname(filePath).toLowerCase();
+  const mime = ext === '.jpg' || ext === '.jpeg' ? 'image/jpeg' : ext === '.webp' ? 'image/webp' : 'image/png';
+  const data = fs.readFileSync(filePath).toString('base64');
+  return `data:${mime};base64,${data}`;
+}
+
+async function makeCompositePreview(spec, images, browserContext, outDir) {
+  ensureDir(outDir);
+  const title = esc(spec.content.title || '预览');
+  const body = esc(spec.content.body || '').replace(/\n/g, '<br/>');
+  const cards = (images || []).map(img => `<div class="card"><img src="${fileToDataUrl(img)}" /></div>`).join('');
+  const html = `
+  <html>
+    <head>
+      <style>
+        body{margin:0;background:#f4eee8;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;color:#222}
+        .wrap{width:1600px;margin:0 auto;padding:40px;box-sizing:border-box}
+        .top{background:#fff;border-radius:28px;padding:36px 42px;box-shadow:0 6px 20px rgba(0,0,0,.05);margin-bottom:28px}
+        h1{font-size:54px;line-height:1.25;margin:0 0 22px;color:#ff7a00}
+        .body{font-size:28px;line-height:1.7;color:#333;white-space:normal}
+        .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+        .card{background:#fff;border-radius:24px;padding:18px;box-shadow:0 6px 18px rgba(0,0,0,.05)}
+        img{width:100%;display:block;border-radius:18px}
+        .footer{margin-top:24px;font-size:22px;color:#888;text-align:right}
+      </style>
+    </head>
+    <body>
+      <div class="wrap">
+        <div class="top">
+          <h1>${title}</h1>
+          <div class="body">${body}</div>
+          <div class="footer">预览图 · 发布前确认</div>
+        </div>
+        <div class="grid">${cards}</div>
+      </div>
+    </body>
+  </html>`;
+  const out = path.join(outDir, `${slugify(spec.content.title || 'preview')}-preview.jpg`);
+  const page = await browserContext.newPage();
+  await page.setViewportSize({ width: 1600, height: 2200 });
+  await page.setContent(html, { waitUntil: 'load' });
+  await page.screenshot({ path: out, type: 'jpeg', quality: 90, fullPage: true });
+  await page.close();
+  return out;
+}
+
+function archivePreview(spec, screenshotPath, images, compositePath, archiveRoot) {
   ensureDir(archiveRoot);
   const dir = path.join(archiveRoot, `${stamp()}-${slugify(spec.content.title || spec.content.theme || 'post')}`);
   ensureDir(dir);
   const shotOut = path.join(dir, path.basename(screenshotPath));
   fs.copyFileSync(screenshotPath, shotOut);
+  let compositeOut = null;
+  if (compositePath && fs.existsSync(compositePath)) {
+    compositeOut = path.join(dir, path.basename(compositePath));
+    fs.copyFileSync(compositePath, compositeOut);
+  }
   const archivedImages = [];
   for (const img of (images || [])) {
     if (img && fs.existsSync(img)) {
@@ -198,12 +250,13 @@ function archivePreview(spec, screenshotPath, images, archiveRoot) {
     title: spec.content.title,
     body: spec.content.body,
     images: archivedImages,
+    compositePreview: compositeOut,
     originalScreenshot: screenshotPath,
     publish: spec.publish || {}
   };
   const metaPath = path.join(dir, 'preview.json');
   fs.writeFileSync(metaPath, JSON.stringify(meta, null, 2));
-  return { dir, shotOut, metaPath, archivedImages };
+  return { dir, shotOut, compositeOut, metaPath, archivedImages };
 }
 
 async function setEditorContent(page, selector, text) {
@@ -277,13 +330,14 @@ async function main() {
     await setEditorContent(page, "div[contenteditable='true']", spec.content.body);
     const shot = path.join(artifactDir, `${slugify(spec.content.title)}-filled.png`);
     await page.screenshot({ path: shot, fullPage: true });
-    const archiveInfo = spec.archive.enabled ? archivePreview(spec, shot, spec.images.paths, path.join(artifactDir, 'preview-archive')) : null;
+    const compositePreview = await makeCompositePreview(spec, spec.images.paths, context, artifactDir);
+    const archiveInfo = spec.archive.enabled ? archivePreview(spec, shot, spec.images.paths, compositePreview, path.join(artifactDir, 'preview-archive')) : null;
 
     if (spec.mode === 'auto' && spec.publish.confirmBeforePublish !== true) {
       const published = await clickExactText(page, '发布');
       if (!published) throw new Error('Publish button not found.');
       await page.waitForTimeout(5000);
-      console.log(JSON.stringify({ ok: true, mode: 'auto', screenshot: shot, title: spec.content.title, images: spec.images.paths, archive: archiveInfo }, null, 2));
+      console.log(JSON.stringify({ ok: true, mode: 'auto', screenshot: shot, previewImage: compositePreview, title: spec.content.title, images: spec.images.paths, archive: archiveInfo }, null, 2));
       return;
     }
 
@@ -291,6 +345,7 @@ async function main() {
       ok: true,
       mode: 'manual-confirm',
       screenshot: shot,
+      previewImage: compositePreview,
       title: spec.content.title,
       body: spec.content.body,
       images: spec.images.paths,
