@@ -1,26 +1,35 @@
 # xiaohongshu-publisher-skill
 
-A reusable OpenClaw AgentSkill for preparing and publishing Xiaohongshu (RED) image-text posts through the web creator page.
+## 中文说明（默认）
 
-## What this skill can do
+一个可复用的 OpenClaw AgentSkill，用于通过小红书创作服务平台网页完成图文发布流程。
 
-- Fill a Xiaohongshu image-text post in the web creator page
-- Support `manual-confirm` mode (recommended default)
-- Support `auto` mode for fully automatic publishing
-- Support content sources:
+### 功能
+
+- 支持 `manual-confirm`（默认推荐）和 `auto` 发布模式
+- 支持内容来源模式：
   - `manual`
   - `theme-generated`
   - `hybrid`
-- Support image sources:
+- 支持图片来源模式：
   - `manual`
   - `simple-cover`
   - `simple-cards`
   - `mixed`
-- Generate preview screenshots before publishing
-- Archive preview screenshots, generated cards, and metadata before publish
-- Emit OpenClaw cron job skeletons for one-shot or daily scheduled posting
+- 支持发布前生成 **JPG 合成预览图**（标题 + 正文 + 图片卡片）
+- 支持发布前预览归档：
+  - 页面截图
+  - 合成预览图
+  - 生成/上传的图片
+  - `preview.json`
+- 支持定时发布 skeleton 生成（OpenClaw cron）
+- 支持模板系统：
+  - `selling`
+  - `knowledge`
+  - `daily`
+  - `recruitment`
 
-## Repository layout
+### 仓库结构
 
 ```text
 xiaohongshu-publisher/
@@ -32,45 +41,38 @@ xiaohongshu-publisher.skill
 examples/
 ```
 
-## Requirements
+### 依赖
 
 - OpenClaw
-- Google Chrome or Chromium installed locally
+- Google Chrome 或 Chromium
 - Node.js
 - `playwright-core`
 
-Install `playwright-core` in the environment where the script runs:
+安装：
 
 ```bash
 npm install playwright-core
 ```
 
-## How another OpenClaw machine can use this skill
+### 别的 OpenClaw 机器怎么使用
 
-### Option A: copy the skill folder directly
+#### 方式 A：直接复制 skill 文件夹
 
-Copy the `xiaohongshu-publisher/` directory into that machine's workspace `skills/` folder:
+把仓库里的 `xiaohongshu-publisher/` 复制到目标机器的 workspace：
 
 ```text
 <workspace>/skills/xiaohongshu-publisher/
 ```
 
-Then OpenClaw can trigger the skill by description when a task mentions Xiaohongshu posting, RED publishing, scheduled posting, or automatic post filling.
+这样 OpenClaw 在遇到“小红书发布 / RED 发布 / 定时图文发布 / 自动填表发布”相关任务时，就可以触发这个 skill。
 
-### Option B: use the packaged `.skill` file
+#### 方式 B：使用打包好的 `.skill`
 
-This repo also includes `xiaohongshu-publisher.skill`, which can be distributed as a packaged skill artifact.
+仓库里包含 `xiaohongshu-publisher.skill`，可作为打包产物分发。
 
-## Important safety default
+### 核心 spec 示例
 
-Default to `manual-confirm` for first runs and new accounts.
-This means the agent fills the post, uploads the images, and stops before clicking Publish.
-
-## Example post spec
-
-See `examples/example-spec.json`.
-
-A typical spec looks like this:
+见：`examples/example-spec.json`
 
 ```json
 {
@@ -80,7 +82,8 @@ A typical spec looks like this:
   },
   "content": {
     "source": "theme-generated",
-    "theme": "防晒衣售卖"
+    "theme": "防晒衣售卖",
+    "template": "selling"
   },
   "images": {
     "source": "simple-cards",
@@ -97,58 +100,119 @@ A typical spec looks like this:
 }
 ```
 
-## Manual-confirm publish flow
+### 模板系统
 
-Run:
+当 `content.source` 是 `theme-generated` 或 `hybrid` 时，可以通过 `content.template` 控制生成风格：
+
+- `selling`：适合售卖/种草
+- `knowledge`：适合干货/教程
+- `daily`：适合日常分享
+- `recruitment`：适合招募/活动/征集
+
+### 手动确认发布
 
 ```bash
 node xiaohongshu-publisher/scripts/xhs_publish.js --spec /absolute/path/to/spec.json
 ```
 
-What it does:
+流程：
+1. 打开小红书创作页并复用持久登录态
+2. 切换到图文模式
+3. 生成图片（如有）
+4. 上传图片
+5. 填写标题和正文
+6. 生成 JPG 合成预览图
+7. 自动归档预览产物
+8. 停在发布前，等待人工确认
 
-1. Open Xiaohongshu creator page with a persistent browser profile
-2. Reuse existing login if available
-3. Switch to image-text posting
-4. Generate cover/cards if configured
-5. Upload images
-6. Fill title and body
-7. Take a preview screenshot
-8. Archive the preview assets and `preview.json`
-9. Stop for manual review and manual publish
-
-## Auto publish
-
-Use `mode: "auto"` and set publish confirmation rules accordingly. Only enable this when you explicitly want unattended publishing.
-
-## Preview screenshot archiving
-
-Before publish, the runner archives:
-
-- the filled-page screenshot
-- generated/uploaded card images
-- `preview.json` containing title, body, mode, and archived file paths
-
-## Schedule support
-
-Generate cron job skeletons from a scheduled spec:
+### 定时发布 skeleton
 
 ```bash
 node xiaohongshu-publisher/scripts/emit_cron_jobs.js --spec /absolute/path/to/spec.json
 ```
 
-The output can be turned into OpenClaw cron jobs.
+输出结果可以继续转成 OpenClaw cron job。
 
-## Current known selectors
+### 选择器说明
 
-The tested creator page pattern is documented in:
+当前测试过的小红书网页结构说明见：
 
 - `xiaohongshu-publisher/references/browser-notes.md`
 
-If Xiaohongshu changes the page structure, re-inspect selectors before trusting automation.
+如果平台页面改版，需要重新检查选择器。
 
-## Notes
+---
 
+## English
+
+A reusable OpenClaw AgentSkill for preparing and publishing Xiaohongshu (RED) image-text posts through the web creator page.
+
+### Features
+
+- Supports `manual-confirm` (recommended default) and `auto` publish modes
+- Supports content sources:
+  - `manual`
+  - `theme-generated`
+  - `hybrid`
+- Supports image sources:
+  - `manual`
+  - `simple-cover`
+  - `simple-cards`
+  - `mixed`
+- Generates a **JPG composite preview image** before publishing
+- Archives pre-publish assets:
+  - filled-page screenshot
+  - composite preview image
+  - generated/uploaded images
+  - `preview.json`
+- Emits OpenClaw cron skeletons for scheduled posting
+- Supports content templates:
+  - `selling`
+  - `knowledge`
+  - `daily`
+  - `recruitment`
+
+### Requirements
+
+- OpenClaw
+- Google Chrome or Chromium
+- Node.js
+- `playwright-core`
+
+Install:
+
+```bash
+npm install playwright-core
+```
+
+### How another OpenClaw machine can use this skill
+
+#### Option A: copy the skill folder directly
+
+Copy `xiaohongshu-publisher/` into the target machine workspace:
+
+```text
+<workspace>/skills/xiaohongshu-publisher/
+```
+
+#### Option B: use the packaged `.skill`
+
+This repository also includes `xiaohongshu-publisher.skill` for distribution.
+
+### Example usage
+
+```bash
+node xiaohongshu-publisher/scripts/xhs_publish.js --spec /absolute/path/to/spec.json
+```
+
+### Scheduling skeleton
+
+```bash
+node xiaohongshu-publisher/scripts/emit_cron_jobs.js --spec /absolute/path/to/spec.json
+```
+
+### Notes
+
+- Default to `manual-confirm` for first runs and new accounts.
 - Login is intentionally manual on first run.
-- Publishing is an external action. Keep human confirmation in the loop unless you explicitly want auto publish.
-- The repository is focused on the reusable skill/component and its documentation.
+- If Xiaohongshu changes its page structure, re-inspect selectors before trusting automation.

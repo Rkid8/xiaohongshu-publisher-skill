@@ -5,7 +5,8 @@
   },
   "content": {
     "source": "theme-generated",
-    "theme": "防晒衣售卖"
+    "theme": "防晒衣售卖",
+    "template": "selling"
   },
   "images": {
     "source": "simple-cards",

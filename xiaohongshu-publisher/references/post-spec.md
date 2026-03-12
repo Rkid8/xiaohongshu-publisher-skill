@@ -28,6 +28,7 @@ Use one normalized JSON-like structure for all runs.
   "content": {
     "source": "manual | theme-generated | hybrid",
     "theme": "防晒衣售卖",
+    "template": "selling | knowledge | daily | recruitment",
     "title": "夏天真的离不开防晒衣｜轻薄又百搭",
     "body": "正文...",
     "hashtags": ["防晒衣", "夏日穿搭"],

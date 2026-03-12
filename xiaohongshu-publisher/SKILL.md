@@ -23,6 +23,12 @@ Default to `manual-confirm`.
 - `theme-generated`: user provides a theme and constraints; generate title/body/hashtags and optionally a simple cover image
 - `hybrid`: user provides some fields and the agent fills the rest
 
+When generating content, choose a template:
+- `selling`
+- `knowledge`
+- `daily`
+- `recruitment`
+
 ### 3. Choose image source
 
 - `manual`: upload user-provided local image paths

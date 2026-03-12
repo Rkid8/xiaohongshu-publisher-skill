@@ -42,6 +42,7 @@ function stamp() {
 
 function generateContent(spec) {
   const theme = spec.content.theme || '日常分享';
+  const template = spec.content.template || 'daily';
   const base = {
     title: `${theme}｜简单分享`,
     body: `今天做一个关于${theme}的简单分享。\n\n✅ 适合日常场景\n✅ 表达尽量清楚直接\n✅ 先用最小可用版本测试发布流程\n\n如果你也对${theme}感兴趣，欢迎一起交流。`,
@@ -49,9 +50,31 @@ function generateContent(spec) {
   };
 
   if (theme.includes('防晒衣')) {
-    base.title = '夏天真的离不开防晒衣｜轻薄又百搭';
-    base.body = '最近在试一款很适合日常通勤和出门的防晒衣，做个简单分享～\n\n✅ 面料轻薄，上身不会闷\n✅ 日常通勤、骑车、散步都能穿\n✅ 颜色基础，很好搭衣服\n✅ 夏天在空调房里穿也合适\n\n我自己比较在意的是：防晒衣不能只有“防晒”两个字，还得真的愿意每天穿出去。\n\n如果你也在找一件适合夏天日常穿的防晒衣，可以看看这类轻便、百搭、透气的款式。';
-    base.hashtags = ['防晒衣', '夏日穿搭', '通勤穿搭', '日常分享', '防晒'];
+    if (template === 'selling') {
+      base.title = '夏天真的离不开防晒衣｜轻薄又百搭';
+      base.body = '最近在试一款很适合日常通勤和出门的防晒衣，做个简单分享～\n\n✅ 面料轻薄，上身不会闷\n✅ 日常通勤、骑车、散步都能穿\n✅ 颜色基础，很好搭衣服\n✅ 夏天在空调房里穿也合适\n\n我自己比较在意的是：防晒衣不能只有“防晒”两个字，还得真的愿意每天穿出去。\n\n如果你也在找一件适合夏天日常穿的防晒衣，可以看看这类轻便、百搭、透气的款式。';
+      base.hashtags = ['防晒衣', '夏日穿搭', '通勤穿搭', '日常分享', '防晒'];
+    } else if (template === 'knowledge') {
+      base.title = '防晒衣怎么选？这 4 点最重要';
+      base.body = '如果你在挑夏天穿的防晒衣，我觉得先看这几件事：\n\n✅ 面料是否轻薄透气\n✅ 上身会不会闷热黏身\n✅ 日常通勤和骑车是否方便\n✅ 颜色和版型是不是容易搭配\n\n很多防晒衣的问题不是“防不防晒”，而是你愿不愿意每天真的穿它。选到舒服、轻便、好搭的，使用率才会高。';
+      base.hashtags = ['防晒衣', '穿搭技巧', '夏日防晒', '购物建议'];
+    } else if (template === 'recruitment') {
+      base.title = '找想试穿防晒衣的朋友｜一起做夏日测试';
+      base.body = '最近在整理一批适合夏天日常穿的防晒衣测试内容，想找几位对轻薄、透气、好搭这类需求比较明确的朋友一起交流反馈。\n\n如果你平时会通勤、骑车、散步，或者一直在找好穿的防晒衣，欢迎留言说说你最在意的点。';
+      base.hashtags = ['防晒衣', '招募', '夏日测试', '穿搭交流'];
+    }
+  } else if (template === 'selling') {
+    base.title = `${theme}｜值得试试的一个版本`;
+    base.body = `最近在整理关于${theme}的内容，做个简单种草分享。\n\n✅ 核心卖点更明确\n✅ 更适合日常使用场景\n✅ 先用最小版本测试反馈\n\n如果你也对${theme}感兴趣，可以先从最实用的版本开始看。`;
+    base.hashtags = [theme, '种草', '日常分享'];
+  } else if (template === 'knowledge') {
+    base.title = `${theme}怎么入门？先看这几条`;
+    base.body = `如果你刚开始接触${theme}，我建议先看这几件事：\n\n✅ 基本概念\n✅ 最常见误区\n✅ 实际使用场景\n✅ 低成本起步方法\n\n先把框架建立起来，再慢慢细化，效率会高很多。`;
+    base.hashtags = [theme, '干货', '入门', '经验分享'];
+  } else if (template === 'recruitment') {
+    base.title = `想找对${theme}感兴趣的朋友一起交流`;
+    base.body = `最近在做${theme}相关内容，想找一些真正有兴趣的人一起交流反馈。\n\n如果你也关注这个方向，欢迎留言说说你的经验、需求或者最想看的内容。`;
+    base.hashtags = [theme, '招募', '交流', '反馈'];
   }
 
   const title = spec.content.title || base.title;
