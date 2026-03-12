@@ -1,11 +1,11 @@
 # xiaohongshu-publisher-skill
 
 <p>
-  <a href="#中文说明-default"><img alt="中文" src="https://img.shields.io/badge/中文-默认-orange"></a>
+  <a href="#中文说明"><img alt="中文" src="https://img.shields.io/badge/中文-orange"></a>
   <a href="#english"><img alt="English" src="https://img.shields.io/badge/English-Switch-blue"></a>
 </p>
 
-## 中文说明（default）
+## 中文说明
 
 一个可复用的 OpenClaw AgentSkill，用于通过小红书创作服务平台网页完成图文发布流程。
 
@@ -59,7 +59,7 @@ examples/
 npm install playwright-core
 ```
 
-### 别的 OpenClaw 机器怎么使用
+### 如何使用
 
 #### 方式 A：直接复制 skill 文件夹
 
