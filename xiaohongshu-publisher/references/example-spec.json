@@ -1,0 +1,18 @@
+{
+  "mode": "manual-confirm",
+  "account": {
+    "profileDir": "/absolute/path/to/xhs-profile"
+  },
+  "content": {
+    "source": "theme-generated",
+    "theme": "防晒衣售卖"
+  },
+  "images": {
+    "source": "simple-cards",
+    "cards": {
+      "mode": "auto-bullets"
+    }
+  },
+  "artifactDir": "/absolute/path/to/artifacts",
+  "reviewWaitMs": 300000
+}

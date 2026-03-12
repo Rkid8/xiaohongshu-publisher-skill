@@ -1,0 +1,22 @@
+{
+  "mode": "manual-confirm",
+  "account": {
+    "profileDir": "/absolute/path/to/xhs-profile"
+  },
+  "content": {
+    "source": "theme-generated",
+    "theme": "防晒衣售卖"
+  },
+  "images": {
+    "source": "simple-cards",
+    "cards": {
+      "mode": "auto-bullets"
+    }
+  },
+  "schedule": {
+    "mode": "daily-times",
+    "times": ["09:30", "18:30"],
+    "tz": "Asia/Shanghai"
+  },
+  "artifactDir": "/absolute/path/to/artifacts"
+}
