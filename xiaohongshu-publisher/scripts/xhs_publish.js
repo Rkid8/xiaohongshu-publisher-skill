@@ -132,7 +132,7 @@ async function makeSimpleCover(spec, browserContext, outDir) {
   ensureDir(outDir);
   const title = spec.images.cover?.title || spec.content.title || spec.content.theme || '小红书图文';
   const subtitle = spec.images.cover?.subtitle || '自动生成测试封面';
-  const footer = spec.images.cover?.footer || 'OpenClaw · Xiaohongshu Publisher';
+  const footer = spec.images.cover?.footer || '';
   const svg = buildCoverSvg(title, subtitle, footer);
   const slug = slugify(title);
   const svgPath = path.join(outDir, `${slug}.svg`);
@@ -145,7 +145,7 @@ async function makeSimpleCover(spec, browserContext, outDir) {
 async function makeSimpleCards(spec, browserContext, outDir) {
   ensureDir(outDir);
   const base = slugify(spec.content.title || spec.content.theme || 'xhs-cards');
-  const footer = 'OpenClaw · Xiaohongshu Publisher';
+  const footer = spec.images.cards?.footer || '';
   const title = spec.images.cover?.title || spec.content.title || spec.content.theme || '小红书图文';
   const subtitle = spec.images.cover?.subtitle || '自动生成多图卡片';
   const bulletPoints = (spec.images.cards?.points && spec.images.cards.points.length)
